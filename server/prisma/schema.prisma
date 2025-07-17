@@ -1,0 +1,67 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  meta      UserMeta[]
+  posts     Post[]
+  media     Media[]  
+  createdAt DateTime   @default(now())
+}
+
+model UserMeta {
+  id      String   @id @default(cuid())
+  userId  String
+  key     String
+  value   String
+  user    User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, key])
+}
+
+model Post {
+  id        String     @id @default(cuid())
+  title     String
+  slug      String?   @unique
+  content   String?
+  published Boolean    @default(false)
+  authorId  String
+  createdAt DateTime   @default(now())
+
+  author    User       @relation(fields: [authorId], references: [id])
+  metas     PostMeta[]
+  media     Media[]
+}
+
+model PostMeta {
+  id        String   @id @default(cuid())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  key       String
+  value     String
+
+  @@unique([postId, key])
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  type      String?
+  mimetype  String?
+  userId    String
+  postId    String?  
+
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+}

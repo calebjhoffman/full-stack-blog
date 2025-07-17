@@ -1,0 +1,29 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import LoginForm from '../../components/Auth/LoginForm';
+import { Container, Paper, Typography, Box } from '@mui/material';
+
+export default function Home() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) navigate('/dashboard');
+  }, [loading, user]);
+
+  if (loading) return null;
+
+  return (
+    <Container maxWidth="sm">
+      <Paper sx={{ padding: 4, marginTop: 8 }}>
+        <Typography variant="h4" gutterBottom align="center">
+          Welcome Back 👋
+        </Typography>
+        <Box mt={2}>
+          <LoginForm />
+        </Box>
+      </Paper>
+    </Container>
+  );
+}

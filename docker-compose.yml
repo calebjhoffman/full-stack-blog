@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:17
+    container_name: mini_blog_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mini_blog
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  server:
+    build: ./server
+    container_name: mini_blog_server
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - type: bind
+        source: ./server
+        target: /app
+      - type: bind
+        source: ./uploads
+        target: /app/uploads
+    env_file:
+      - ./server/.env
+    command: sh ./docker-entrypoint.sh
+
+  client:
+    build: ./client
+    container_name: mini_blog_client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+    working_dir: /app
+    command: ["npm", "run", "dev"]
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: mini_blog_pgadmin
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  pgdata:
+  pgadmin_data:
