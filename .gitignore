@@ -1,0 +1,49 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS / IDE clutter
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment overrides (do NOT ignore .env and server/.env if tracking in private repo)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite / React
+dist/
+dist-ssr/
+client/dist/
+client/.vite/
+
+# Prisma
+server/prisma/dev.db
+server/prisma/dev.db-journal
+server/prisma/generated/
+server/prisma/migrations/
+
+# Uploads (media storage)
+server/uploads/
+
+# Docker volumes (optional, if these are local bind mounts)
+pgdata/
+pgadmin_data/
