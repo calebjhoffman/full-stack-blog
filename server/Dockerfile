@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-# Install native build tools and sharp deps
+# Install required build dependencies (sharp, rollup-native, etc.)
 RUN apk add --no-cache \
   libc6-compat \
   libjpeg-turbo-dev \
@@ -13,15 +13,17 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Install dependencies
 COPY package*.json ./
 
-# Force optional deps for musl (sharp, rollup, etc.)
-RUN npm install --force --include=optional --unsafe-perm
+# Force install optional native modules like sharp & rollup
+RUN npm install --include=optional
 
-# Copy rest of the app
+# Install dev-only tools like nodemon
+RUN npm install --save-dev nodemon
+
 COPY . .
 
 EXPOSE 3000
 
+# Final startup command
 CMD ["sh", "./docker-entrypoint.sh"]
