@@ -1,23 +1,27 @@
 FROM node:20-alpine
 
+# Install native build tools and sharp deps
 RUN apk add --no-cache \
   libc6-compat \
   libjpeg-turbo-dev \
   libpng-dev \
-  vips-dev
+  vips-dev \
+  python3 \
+  make \
+  g++ \
+  build-base
 
 WORKDIR /app
 
+# Install dependencies
 COPY package*.json ./
-RUN npm install
-RUN npm install --save-dev nodemon
 
+# Force optional deps for musl (sharp, rollup, etc.)
+RUN npm install --force --include=optional --unsafe-perm
+
+# Copy rest of the app
 COPY . .
-
-# Prisma client generated at build time
-RUN npx prisma generate
 
 EXPOSE 3000
 
-# DO NOT run the entrypoint here — just define it
 CMD ["sh", "./docker-entrypoint.sh"]
