@@ -26,6 +26,7 @@ services:
       - type: bind
         source: ./uploads
         target: /app/uploads
+      - /app/node_modules  
     env_file:
       - ./server/.env
     command: sh ./docker-entrypoint.sh
@@ -37,6 +38,7 @@ services:
       - "5173:5173"
     volumes:
       - ./client:/app
+      - /app/node_modules 
     working_dir: /app
     command: ["npm", "run", "dev"]
 
