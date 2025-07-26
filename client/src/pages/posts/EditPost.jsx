@@ -130,14 +130,16 @@ const handleSave = async () => {
         </Box>
 
         <Box sx={{ mb: 4 }}>
-          <ImageUploader
-            label="Featured Image (recommended: 1600x500)"
-            initialUrl={featuredImageUrl}
-            onUpload={(file) => {
-              setFeaturedImageFile(file);
-              setFeaturedImageUrl(URL.createObjectURL(file));
-            }}
-          />
+        <ImageUploader
+          label="Featured Image (recommended: 1600x500)"
+          initialUrl={featuredImageUrl}
+          uploadType="featured"
+          postId={post.id} // 🔥 must be valid!
+          onUpload={({ url }) => {
+            setFeaturedImageFile(url);
+            setFeaturedImageUrl(url);
+          }}
+        />
         </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

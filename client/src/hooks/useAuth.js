@@ -5,14 +5,34 @@ export default function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then(res => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
-      .then(data => setUser(data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    const loadUser = async () => {
+      try {
+        // 🧠 Try to refresh access token first
+        const refreshRes = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (!refreshRes.ok) throw new Error('Refresh failed');
+
+        // 🎯 Then fetch the user info
+        const meRes = await fetch('/api/auth/me', {
+          credentials: 'include',
+        });
+
+        if (!meRes.ok) throw new Error('Unauthorized');
+
+        const data = await meRes.json();
+        setUser(data);
+      } catch (err) {
+        console.warn('❌ Auth load failed:', err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
   }, []);
 
   return { user, loading };

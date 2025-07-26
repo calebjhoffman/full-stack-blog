@@ -11,51 +11,51 @@ export default function CreatePost() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [featuredImageFile, setFeaturedImageFile] = useState(null);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    try {
-      let featuredImageUrl = '';
+  try {
+    // 1. Create the post first
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content }),
+    });
 
-      // ✅ Upload featured image if selected
-      if (featuredImageFile) {
-        const formData = new FormData();
-        formData.append('file', featuredImageFile);
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to create post');
+    }
 
-        const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
-          method: 'POST',
-          credentials: 'include',
-          body: formData,
-        });
+    const newPost = await res.json();
 
-        if (!uploadRes.ok) {
-          const uploadErr = await uploadRes.json();
-          throw new Error(uploadErr.error || 'Image upload failed');
-        }
+    // 2. Upload featured image if provided
+    if (featuredImageFile) {
+      const formData = new FormData();
+      formData.append('file', featuredImageFile.file);
+      formData.append('type', 'featured');
+      formData.append('postId', newPost.id);
 
-        const uploadData = await uploadRes.json();
-        featuredImageUrl = uploadData.url; // or uploadData.id if you're storing media ID
-      }
-
-      // 📝 Create the post with featuredImage
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
+      const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content, featuredImage: featuredImageUrl }),
+        body: formData,
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to create post');
+      if (!uploadRes.ok) {
+        const uploadErr = await uploadRes.json();
+        throw new Error(uploadErr.error || 'Image upload failed');
       }
-
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.message);
     }
-  };
+
+    navigate('/dashboard');
+  } catch (err) {
+    setError(err.message);
+  }
+};
+
 
   return (
     <Container width='60vw'>

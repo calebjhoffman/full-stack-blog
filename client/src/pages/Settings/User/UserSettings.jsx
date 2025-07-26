@@ -44,21 +44,22 @@ export default function UserSettings() {
 
     let avatar_media_id = null;
 
-    if (croppedImageBlob) {
-      const formData = new FormData();
-      formData.append('file', croppedImageBlob);
+  if (croppedImageBlob) {
+    const formData = new FormData();
+    formData.append('file', croppedImageBlob);
+    formData.append('type', 'avatar'); // ✅ This sets the Media.type correctly
 
-      const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/media`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+    const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/media`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
 
-      if (uploadRes.ok) {
-        const { mediaId } = await uploadRes.json();
-        avatar_media_id = mediaId.toString();
-      }
+    if (uploadRes.ok) {
+      const { mediaId } = await uploadRes.json();
+      avatar_media_id = mediaId.toString();
     }
+  }
 
     const updates = {
       name,

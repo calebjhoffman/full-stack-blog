@@ -45,6 +45,9 @@ export default function AvatarMenu() {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
+        <MenuItem component={Link} to="/dashboard">
+          Dashboard
+        </MenuItem>
         <MenuItem
           component={Link}
           to="/settings"

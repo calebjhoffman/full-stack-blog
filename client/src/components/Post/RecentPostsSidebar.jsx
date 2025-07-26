@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Paper, CircularProgress } from '@mui/material';
+import stripHtml from '../../lib/sanitize'
 
 export default function RecentPostsSidebar({ excludeSlug }) {
   const [posts, setPosts] = useState([]);
@@ -9,6 +10,7 @@ export default function RecentPostsSidebar({ excludeSlug }) {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      
       try {
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts/public?limit=3`);
         const data = await res.json();
@@ -38,13 +40,7 @@ export default function RecentPostsSidebar({ excludeSlug }) {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {posts.map((post) => {
-            console.log('🖼️ Featured image debug:', {
-                base: import.meta.env.VITE_SERVER_PUBLIC_URL,
-                imagePath: post.meta?.featured_image,
-                fullUrl: post.meta?.featured_image
-                    ? `${import.meta.env.VITE_SERVER_PUBLIC_URL}${post.meta.featured_image}`
-                    : null,
-                });
+            console.log('Sanitized:', stripHtml(post.content));
           const featured = post.meta?.featured_image
             ? `${import.meta.env.VITE_SERVER_PUBLIC_URL}${post.meta.featured_image}`
             : '/placeholder-banner.jpg'; // fallback image
@@ -78,7 +74,7 @@ export default function RecentPostsSidebar({ excludeSlug }) {
                   {post.title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>
-                  {post.content.replace(/<[^>]+>/g, '').slice(0, 80)}...
+                  {stripHtml(post.content).slice(0, 80)}...
                 </Typography>
               </Box>
             </Paper>

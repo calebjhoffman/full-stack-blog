@@ -4,12 +4,14 @@ import {
   Button,
   Typography,
   Stack,
-  CircularProgress,
 } from '@mui/material';
 
-export default function ImageUploader({ label = 'Upload Image', onUpload, initialUrl = '' }) {
+export default function ImageUploader({
+  label = 'Upload Image',
+  onUpload,
+  initialUrl = ''
+}) {
   const [previewUrl, setPreviewUrl] = useState('');
-  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (initialUrl) {
@@ -17,20 +19,13 @@ export default function ImageUploader({ label = 'Upload Image', onUpload, initia
     }
   }, [initialUrl]);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setProcessing(true);
-    try {
-      const blobUrl = URL.createObjectURL(file);
-      setPreviewUrl(blobUrl);
-      onUpload(file); // Trigger upload
-    } catch (err) {
-      console.error('Upload error:', err);
-    } finally {
-      setProcessing(false);
-    }
+    const blobUrl = URL.createObjectURL(file);
+    setPreviewUrl(blobUrl);
+    onUpload({ file });
   };
 
   return (
@@ -52,9 +47,8 @@ export default function ImageUploader({ label = 'Upload Image', onUpload, initia
         <Button
           component="label"
           variant="contained"
-          disabled={processing}
         >
-          {processing ? <CircularProgress size={18} /> : 'Choose File'}
+          Choose File
           <input type="file" hidden accept="image/*" onChange={handleFileChange} />
         </Button>
       </Stack>

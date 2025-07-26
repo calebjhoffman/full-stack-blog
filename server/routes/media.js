@@ -26,8 +26,22 @@ const upload = multer({
 });
 
 router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
+  // 🧱 Defensive guard
+  if (!req.file) {
+    console.error('❌ No file uploaded. req.body:', req.body);
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
   try {
     const { type, postId } = req.body;
+
+    // 🔍 Logging incoming form data
+    console.log('📨 Incoming upload request');
+    console.log('  • Type:', type);
+    console.log('  • Post ID:', postId);
+    console.log('  • File name:', req.file.originalname);
+    console.log('  • MIME type:', req.file.mimetype);
+
     const fileExt = path.extname(req.file.originalname).toLowerCase() || '.jpg';
     const fileName = `${Date.now()}-${Math.round(Math.random() * 1e6)}${fileExt}`;
     const filePath = path.join(uploadDir, fileName);
@@ -62,16 +76,18 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
 
     // 🧠 Smart metadata logic
     if (type === 'featured' && postId) {
+      console.log(`📌 Storing featured image for post ${postId}`);
       await upsertPostMeta(postId, 'featured_image', fileUrl);
     } else {
-      // default to avatar
+      console.log(`👤 Storing avatar image for user ${userId}`);
       await setUserMeta(userId, 'avatar_media_id', media.id);
       await setUserMeta(userId, 'avatar_url', fileUrl);
     }
 
+    console.log('✅ Upload and metadata saved successfully');
     res.status(201).json({ mediaId: media.id, url: media.url });
   } catch (err) {
-    console.error('Upload error:', err);
+    console.error('🔥 Upload error:', err);
     res.status(500).json({ error: 'Failed to upload file' });
   }
 });

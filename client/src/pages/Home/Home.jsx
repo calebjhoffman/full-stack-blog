@@ -1,29 +1,44 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import LoginForm from '../../components/Auth/LoginForm';
-import { Container, Paper, Typography, Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Typography } from '@mui/material';
+import PublicPostCard from '../../components/Post/PublicPostCard';
 
 export default function Home() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    if (!loading && user) navigate('/dashboard');
-  }, [loading, user]);
-
-  if (loading) return null;
+    fetch(`${import.meta.env.VITE_SERVER_PUBLIC_URL}/public/posts`)
+      .then((res) => res.json())
+      .then((data) => setPosts(data))
+      .catch((err) => console.error('Failed to fetch posts', err));
+  }, []);
 
   return (
-    <Container maxWidth="sm">
-      <Paper sx={{ padding: 4, marginTop: 8 }}>
-        <Typography variant="h4" gutterBottom align="center">
-          Welcome Back 👋
-        </Typography>
-        <Box mt={2}>
-          <LoginForm />
+    <Box sx={{ mt: 10, mb: 6, px: 2 }}>
+      <Typography variant="h3" marginBottom="30px" textAlign="left">
+        📰 Latest Posts
+      </Typography>
+
+      {posts.length === 0 ? (
+        <Typography textAlign="center">No posts yet.</Typography>
+      ) : (
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 4,
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+            },
+            maxWidth: '1200px',
+            mx: 'auto',
+          }}
+        >
+          {posts.map((post) => (
+            <PublicPostCard key={post.id} post={post} />
+          ))}
         </Box>
-      </Paper>
-    </Container>
+      )}
+    </Box>
   );
 }

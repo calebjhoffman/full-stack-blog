@@ -1,4 +1,4 @@
-console.log('🧠 Server dint run...');
+
 import express from 'express';
 import path from 'path';
 import cors from 'cors';
@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import mediaRoutes from './routes/media.js';
 import userRoutes from './routes/users.js';
+import publicRoutes from './routes/public.js';
 
 
 const __dirname = path.resolve();
@@ -28,6 +29,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/upload', mediaRoutes);
 app.use('/api/users', userRoutes);
+app.use('/public', publicRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 3000;

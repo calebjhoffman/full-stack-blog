@@ -3,17 +3,16 @@ import { useTheme } from '@mui/material/styles';
 import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function TinyMCEEditor({ content, onChange, height = 600}) {
+export default function TinyMCEEditor({ content, onChange, height = 600 }) {
   const editorRef = useRef(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
   return (
     <Editor
-      key={theme.palette.mode}
+      key={theme.palette.mode} // rerenders on theme change
       apiKey="022lwodjci7082m62n4p6mm5rjhjokie7osayymmp7if5p6v"
-      initialValue={content}
-      value={content}
+      value={content} // ✅ controlled mode
       onEditorChange={onChange}
       init={{
         height,

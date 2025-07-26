@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import stripHtml from '../../lib/sanitize'
 import {
   Box,
   Typography,
@@ -123,7 +124,7 @@ export default function Dashboard() {
                     mb: 2,
                   }}
                 >
-                  {post.content}
+                  {stripHtml(post.content)}
                 </Typography>
 
                 <Box sx={{ mt: 'auto', display: 'flex', gap: 1 }}>

@@ -71,19 +71,6 @@ export default function LoginForm() {
         <Button type="submit" variant="contained">
           Login
         </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={async () => {
-            await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
-              method: 'POST',
-              credentials: 'include',
-            });
-            await refreshUser(); // This will set user to null in context
-          }}
-        >
-        Log Out
-      </Button>
       </Stack>
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
         Don't have an account?{' '}

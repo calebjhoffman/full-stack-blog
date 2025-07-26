@@ -23,7 +23,7 @@ import AvatarMenu from './AvatarMenu';
 const drawerWidth = 240;
 
 export default function ProtectedLayout() {
-  const { user } = useAuth();
+  const { user, loading, hasCheckedAuth } = useAuth(); // ⬅️ add these
   const theme = useTheme();
   const { toggleColorMode, mode } = useContext(ColorModeContext);
 
@@ -40,14 +40,19 @@ export default function ProtectedLayout() {
 
   const drawer = <Sidebar />;
 
+  // ✅ Prevent premature rendering until user and meta are loaded
+  if (loading || !hasCheckedAuth || !user) {
+    return null; // or a loading spinner
+  }
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
 
-    <TopBar
-      onMobileToggle={handleDrawerToggle}
-      onSidebarToggle={handleSidebarCollapse}
-    />
+      <TopBar
+        onMobileToggle={handleDrawerToggle}
+        onSidebarToggle={handleSidebarCollapse}
+      />
 
       {/* Sidebar Navigation */}
       <Box
