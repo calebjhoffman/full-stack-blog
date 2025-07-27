@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Login/Login';
@@ -9,14 +9,11 @@ import ViewPost from './pages/posts/ViewPost';
 import ProtectedRoute from './routes/ProtectedRoute';
 import ProtectedLayout from './components/Layout/ProtectedLayout';
 import PublicLayout from './components/Layout/PublicLayout';
-import { AuthProvider } from './context/AuthContext';
 import UserSettings from './pages/Settings/User/UserSettings';
 
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
         <Routes>
           {/* Public routes */}
           <Route element={<PublicLayout />}>
@@ -35,7 +32,5 @@ export default function App() {
             </Route>
           </Route>
         </Routes>
-      </Router>
-    </AuthProvider>
   );
 }

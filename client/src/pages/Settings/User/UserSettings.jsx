@@ -1,37 +1,63 @@
 import { useState, useEffect, useContext } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { ColorModeContext } from '../../../context/ColorModeContext';
+import { ColorModeContext } from '../../../context/ColorModeContext'; // ✅ ADD THIS
 import {
   Box,
   Typography,
   TextField,
   Button,
   Paper,
+  MenuItem,
+  Select,
+  InputLabel,
   FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
 } from '@mui/material';
 import AvatarUpload from './AvatarUpload';
 
 export default function UserSettings() {
-  const { user, meta, setMeta, setUser, setPreviewAvatarUrl } = useAuth();
-  const { setMode } = useContext(ColorModeContext);
+  const { user, meta, setMeta, setUser, setPreviewAvatarUrl, hasCheckedAuth } = useAuth();
+  const { setMode } = useContext(ColorModeContext); // ✅ ADD THIS
 
-  const [name, setName] = useState(user?.name || '');
-  const [bio, setBio] = useState(meta?.bio || '');
-  const [theme, setTheme] = useState(meta?.theme_preference || 'light');
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
   const [croppedImageBlob, setCroppedImageBlob] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(meta?.avatar_url || '');
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [theme, setTheme] = useState('light'); // ✅ ADD THIS
+
+  const [formInitialized, setFormInitialized] = useState(false);
 
   useEffect(() => {
-    if (meta?.avatar_url) {
+    if (!hasCheckedAuth || formInitialized) return;
+
+    if (!user?.name && !meta?.bio && !meta?.avatar_url && !meta?.theme_preference) return;
+
+    console.log('🎯 Hydrating form with:', { user, meta });
+
+    if (user?.name) setName(user.name);
+    if (typeof meta.bio === 'string') setBio(meta.bio);
+
+    if (meta.avatar_url) {
       setPreviewUrl(`${import.meta.env.VITE_SERVER_PUBLIC_URL}${meta.avatar_url}`);
     } else {
       setPreviewUrl('');
     }
-  }, [meta?.avatar_url]);
+
+    if (meta.theme_preference) setTheme(meta.theme_preference); // ✅ hydrate theme
+
+    setFormInitialized(true);
+  }, [user, meta, hasCheckedAuth, formInitialized]);
+
+  useEffect(() => {
+    console.log('👁 UserSettings sees meta:', meta);
+    if (!formInitialized || !meta) return;
+
+    console.log('🔄 Syncing dropdown theme with meta:', meta.theme_preference);
+
+    const pref = meta.theme_preference;
+    if (pref && pref !== theme) {
+      setTheme(pref);
+    }
+  }, [meta, formInitialized]);
 
   const updateMeta = async (updates) => {
     const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/meta`, {
@@ -68,11 +94,21 @@ export default function UserSettings() {
       }
     }
 
-    const updates = { name, bio, theme_preference: theme };
-    if (avatar_media_id) updates.avatar_media_id = avatar_media_id;
+    const updates = {
+      name,
+      bio,
+      theme_preference: theme, // ✅ Save theme to meta
+    };
+
+    if (avatar_media_id) {
+      updates.avatar_media_id = avatar_media_id;
+    }
 
     await updateMeta(updates);
-    setMode(theme); // ✅ Apply theme immediately
+
+    // ✅ Apply theme immediately
+    localStorage.setItem('theme_preference', theme);
+    setMode(theme);
 
     const userRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/me`, {
       credentials: 'include',
@@ -129,16 +165,18 @@ export default function UserSettings() {
             sx={{ mt: 2, mb: 2 }}
           />
 
-          <FormControl component="fieldset" sx={{ mt: 2, mb: 3 }}>
-            <FormLabel component="legend">Theme Preference</FormLabel>
-            <RadioGroup
-              row
+          {/* ✅ Theme Selector */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Theme</InputLabel>
+            <Select
               value={theme}
+              label="Theme"
               onChange={(e) => setTheme(e.target.value)}
             >
-              <FormControlLabel value="light" control={<Radio />} label="Light" />
-              <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-            </RadioGroup>
+              <MenuItem value="system">System</MenuItem>
+              <MenuItem value="light">Light</MenuItem>
+              <MenuItem value="dark">Dark</MenuItem>
+            </Select>
           </FormControl>
 
           <Button variant="contained" type="submit">

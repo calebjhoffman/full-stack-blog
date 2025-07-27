@@ -4,42 +4,42 @@ import { ColorModeContext } from './ColorModeContext';
 const AuthContext = createContext();
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export function AuthProvider({ children }) {
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [meta, setMeta] = useState({});
   const [loading, setLoading] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState(null);
 
-  const { setMode } = useContext(ColorModeContext); // ⬅️ Theme updater
+  const { setMode } = useContext(ColorModeContext); // ✅ Direct access, safe now
 
   useEffect(() => {
-    refreshUser(); // ⬅️ triggers token refresh on first load
+    refreshUser();
   }, []);
+
+  // ✅ Sync theme preference on meta change
+  useEffect(() => {
+    if (!meta?.theme_preference) return;
+
+    const preferred = meta.theme_preference;
+    if (preferred === 'dark' || preferred === 'light') {
+      setMode(preferred);
+    }
+  }, [meta.theme_preference, setMode]);
 
   const refreshUser = async () => {
     setLoading(true);
 
     try {
-      let res;
-      try {
-        res = await fetch(`${BASE_URL}/auth/me`, {
-          credentials: 'include',
-        });
-      } catch {
-        res = { ok: false, status: 500 };
-      }
+      let res = await fetch(`${BASE_URL}/auth/me`, {
+        credentials: 'include',
+      });
 
       if (res.status === 401) {
-        let refreshRes;
-        try {
-          refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
-            method: 'POST',
-            credentials: 'include',
-          });
-        } catch {
-          refreshRes = { ok: false, status: 500 };
-        }
+        const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        });
 
         if (!refreshRes.ok) {
           setUser(null);
@@ -49,13 +49,9 @@ export function AuthProvider({ children }) {
           return;
         }
 
-        try {
-          res = await fetch(`${BASE_URL}/auth/me`, {
-            credentials: 'include',
-          });
-        } catch {
-          res = { ok: false, status: 500 };
-        }
+        res = await fetch(`${BASE_URL}/auth/me`, {
+          credentials: 'include',
+        });
 
         if (!res.ok) {
           console.error('Token refreshed but user fetch still failed');
@@ -70,30 +66,18 @@ export function AuthProvider({ children }) {
       const userData = await res.json();
       setUser(userData);
 
-      try {
-        const metaRes = await fetch(`${BASE_URL}/auth/meta`, {
-          credentials: 'include',
-        });
+      const metaRes = await fetch(`${BASE_URL}/auth/meta`, {
+        credentials: 'include',
+      });
 
-        if (metaRes.ok) {
-          const metaData = await metaRes.json();
-          setMeta(metaData);
-
-          // ✅ Sync theme preference if it exists
-          const preferredTheme = metaData.theme_preference;
-          if (preferredTheme === 'dark' || preferredTheme === 'light') {
-            setMode(preferredTheme);
-          }
-        } else {
-          setMeta({});
-        }
-      } catch {
-        setMeta({});
+      if (metaRes.ok) {
+        const metaData = await metaRes.json();
+        setMeta(metaData);
       }
+
     } catch (err) {
       console.error('Unexpected auth error:', err);
       setUser(null);
-      setMeta({});
     } finally {
       setLoading(false);
       setHasCheckedAuth(true);
@@ -109,9 +93,24 @@ export function AuthProvider({ children }) {
       setUser(null);
       setMeta({});
       setPreviewAvatarUrl(null);
-      navigate('/'); // ✅ Redirect to homepage
+      navigate('/');
     } catch (err) {
       console.error('Logout failed', err);
+    }
+  };
+
+  const updateMeta = async (updates) => {
+    const res = await fetch(`${BASE_URL}/auth/meta`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(updates),
+    });
+
+    if (res.ok) {
+      setMeta((prev) => ({ ...prev, ...updates }));
+    } else {
+      console.error('❌ Failed to update meta on server');
     }
   };
 
@@ -126,6 +125,7 @@ export function AuthProvider({ children }) {
         refreshUser,
         logout,
         setMeta,
+        updateMeta,
         previewAvatarUrl,
         setPreviewAvatarUrl,
       }}
@@ -133,8 +133,8 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+const useAuth = () => useContext(AuthContext);
+
+export { AuthProvider, useAuth };

@@ -10,11 +10,13 @@ import {
   Paper,
   Button,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles'; // ✅ added
 
 export default function ViewPost() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const theme = useTheme(); // ✅ get current theme
 
   const [post, setPost] = useState(null);
   const [featuredImage, setFeaturedImage] = useState(null);
@@ -47,7 +49,7 @@ export default function ViewPost() {
   if (!post) return <Typography>Post not found.</Typography>;
 
   return (
-    <Box sx={{ backgroundColor: '#fff', overflowX: 'hidden' }}>
+    <Box sx={{ backgroundColor: theme.palette.background.default, overflowX: 'hidden' }}>
       {/* Full-width featured image */}
       {featuredImage && (
         <Box
@@ -125,13 +127,20 @@ export default function ViewPost() {
         >
           {/* Main article */}
           <Box>
-            <Paper elevation={3} sx={{ p: { xs: 3, sm: 5 }, borderRadius: 4 }}>
+            <Paper
+              elevation={3}
+              sx={{
+                p: { xs: 3, sm: 5 },
+                borderRadius: 4,
+                backgroundColor: theme.palette.background.paper,
+              }}
+            >
               <Box
                 component="article"
                 sx={{
                   fontSize: '1.1rem',
                   lineHeight: 1.8,
-                  color: '#222',
+                  color: theme.palette.text.primary, // ✅ themed text
                   '& h1, h2, h3': {
                     fontWeight: 600,
                     mt: 2,
@@ -145,18 +154,18 @@ export default function ViewPost() {
                   '& hr': {
                     my: 4,
                     border: 0,
-                    borderTop: '1px solid #ddd',
+                    borderTop: `1px solid ${theme.palette.divider}`,
                   },
                   '& blockquote': {
-                    borderLeft: '4px solid #ccc',
+                    borderLeft: `4px solid ${theme.palette.divider}`,
                     paddingLeft: '1rem',
                     marginLeft: 0,
-                    color: '#666',
+                    color: theme.palette.text.secondary,
                     fontStyle: 'italic',
                     mb: 3,
                   },
                   '& a': {
-                    color: '#1976d2',
+                    color: theme.palette.primary.main,
                     textDecoration: 'underline',
                   },
                 }}
@@ -170,7 +179,7 @@ export default function ViewPost() {
                 mt: 6,
                 px: 4,
                 py: 3,
-                backgroundColor: '#f9f9f9',
+                backgroundColor: theme.palette.background.paper,
                 borderRadius: 3,
                 display: 'flex',
                 alignItems: 'center',

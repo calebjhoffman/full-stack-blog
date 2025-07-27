@@ -13,7 +13,7 @@ export default function Home() {
   }, []);
 
   return (
-    <Box sx={{ mt: 10, mb: 6, px: 2 }}>
+    <Box sx={{ pt: 10, mb: 6, px: 2 }}>
       <Typography variant="h3" marginBottom="30px" textAlign="left">
         📰 Latest Posts
       </Typography>
