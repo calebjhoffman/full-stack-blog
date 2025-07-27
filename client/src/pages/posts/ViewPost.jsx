@@ -1,29 +1,33 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import PublicUserAvatar from '../../components/ui/PublicUserAvatar';
 import RecentPostsSidebar from '../../components/Post/RecentPostsSidebar';
+import { useAuth } from '../../context/AuthContext';
 import {
   Box,
   Typography,
   CircularProgress,
   Paper,
-  Grid,
+  Button,
 } from '@mui/material';
 
 export default function ViewPost() {
-  const [authorMeta, setAuthorMeta] = useState({});
   const { slug } = useParams();
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [post, setPost] = useState(null);
   const [featuredImage, setFeaturedImage] = useState(null);
+  const [authorMeta, setAuthorMeta] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts/${slug}`);
         const data = await res.json();
-        
+
         setPost(data.post);
         setAuthorMeta(data.authorMeta || {});
         if (data.meta?.featured_image) {
@@ -35,10 +39,9 @@ export default function ViewPost() {
         setLoading(false);
       }
     };
-    
+
     fetchPost();
   }, [slug]);
-
 
   if (loading) return <CircularProgress />;
   if (!post) return <Typography>Post not found.</Typography>;
@@ -55,7 +58,6 @@ export default function ViewPost() {
             overflow: 'hidden',
           }}
         >
-          {/* Blurred Background */}
           <Box
             component="img"
             src={featuredImage}
@@ -65,15 +67,13 @@ export default function ViewPost() {
               height: '100%',
               objectFit: 'cover',
               filter: 'blur(8px)',
-              transform: 'scale(1.1)', // zoom to hide blur edge
+              transform: 'scale(1.1)',
               position: 'absolute',
               top: 0,
               left: 0,
               zIndex: 1,
             }}
           />
-
-          {/* Dark Overlay */}
           <Box
             sx={{
               position: 'absolute',
@@ -85,8 +85,6 @@ export default function ViewPost() {
               zIndex: 2,
             }}
           />
-
-          {/* Post Title */}
           <Box
             sx={{
               position: 'relative',
@@ -111,8 +109,6 @@ export default function ViewPost() {
           </Box>
         </Box>
       )}
-
-
 
       {/* Main content + sidebar layout */}
       <Box sx={{ px: { xs: 2, sm: 4, md: 8 }, py: 6 }}>
@@ -167,6 +163,8 @@ export default function ViewPost() {
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
             </Paper>
+
+            {/* ✅ Author box */}
             <Box
               sx={{
                 mt: 6,
@@ -189,6 +187,19 @@ export default function ViewPost() {
                 </Typography>
               </Box>
             </Box>
+
+            {/* ✅ Edit Post button if user is the author */}
+            {user?.id === post.authorId && (
+              <Box sx={{ mt: 3, textAlign: 'right' }}>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate(`/dashboard/posts/${post.id}`)}
+                  sx={{ textTransform: 'none' }}
+                >
+                  ✏️ Edit Post
+                </Button>
+              </Box>
+            )}
           </Box>
 
           {/* Sidebar */}

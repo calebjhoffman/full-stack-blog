@@ -1,0 +1,6 @@
+/* index.css or global reset */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}

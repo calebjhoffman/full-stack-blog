@@ -1,8 +1,7 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { ColorModeContext } from './ColorModeContext';
 
 const AuthContext = createContext();
-import { useEffect } from 'react';
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function AuthProvider({ children }) {
@@ -12,90 +11,94 @@ export function AuthProvider({ children }) {
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState(null);
 
+  const { setMode } = useContext(ColorModeContext); // ⬅️ Theme updater
+
   useEffect(() => {
-  refreshUser(); // ⬅️ this triggers token refresh on first load
-}, []);
+    refreshUser(); // ⬅️ triggers token refresh on first load
+  }, []);
 
+  const refreshUser = async () => {
+    setLoading(true);
 
-const refreshUser = async () => {
-  setLoading(true);
-
-  try {
-    let res;
     try {
-      res = await fetch(`${BASE_URL}/auth/me`, {
-        credentials: 'include',
-      });
-    } catch (err) {
-      // Swallow fetch error silently (e.g., network down)
-      res = { ok: false, status: 500 };
-    }
-
-    if (res.status === 401) {
-      let refreshRes;
-      try {
-        refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
-          method: 'POST',
-          credentials: 'include',
-        });
-      } catch (err) {
-        refreshRes = { ok: false, status: 500 };
-      }
-
-      if (!refreshRes.ok) {
-        setUser(null);
-        setMeta({});
-        setHasCheckedAuth(true);
-        setLoading(false);
-        return;
-      }
-
+      let res;
       try {
         res = await fetch(`${BASE_URL}/auth/me`, {
           credentials: 'include',
         });
-      } catch (err) {
+      } catch {
         res = { ok: false, status: 500 };
       }
 
-      if (!res.ok) {
-        console.error('Token refreshed but user fetch still failed');
-        setUser(null);
-        setMeta({});
-        setHasCheckedAuth(true);
-        setLoading(false);
-        return;
+      if (res.status === 401) {
+        let refreshRes;
+        try {
+          refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+          });
+        } catch {
+          refreshRes = { ok: false, status: 500 };
+        }
+
+        if (!refreshRes.ok) {
+          setUser(null);
+          setMeta({});
+          setHasCheckedAuth(true);
+          setLoading(false);
+          return;
+        }
+
+        try {
+          res = await fetch(`${BASE_URL}/auth/me`, {
+            credentials: 'include',
+          });
+        } catch {
+          res = { ok: false, status: 500 };
+        }
+
+        if (!res.ok) {
+          console.error('Token refreshed but user fetch still failed');
+          setUser(null);
+          setMeta({});
+          setHasCheckedAuth(true);
+          setLoading(false);
+          return;
+        }
       }
-    }
 
-    const userData = await res.json();
-    setUser(userData);
+      const userData = await res.json();
+      setUser(userData);
 
-    try {
-      const metaRes = await fetch(`${BASE_URL}/auth/meta`, {
-        credentials: 'include',
-      });
+      try {
+        const metaRes = await fetch(`${BASE_URL}/auth/meta`, {
+          credentials: 'include',
+        });
 
-      if (metaRes.ok) {
-        const metaData = await metaRes.json();
-        setMeta(metaData);
-      } else {
+        if (metaRes.ok) {
+          const metaData = await metaRes.json();
+          setMeta(metaData);
+
+          // ✅ Sync theme preference if it exists
+          const preferredTheme = metaData.theme_preference;
+          if (preferredTheme === 'dark' || preferredTheme === 'light') {
+            setMode(preferredTheme);
+          }
+        } else {
+          setMeta({});
+        }
+      } catch {
         setMeta({});
       }
-    } catch {
+    } catch (err) {
+      console.error('Unexpected auth error:', err);
+      setUser(null);
       setMeta({});
+    } finally {
+      setLoading(false);
+      setHasCheckedAuth(true);
     }
-  } catch (err) {
-    // Unexpected internal error
-    console.error('Unexpected auth error:', err);
-    setUser(null);
-    setMeta({});
-  } finally {
-    setLoading(false);
-    setHasCheckedAuth(true);
-  }
-};
-
+  };
 
   const logout = async () => {
     try {
@@ -104,8 +107,9 @@ const refreshUser = async () => {
         credentials: 'include',
       });
       setUser(null);
-      setAccessToken(null);
-      navigate('/'); // ✅ Redirect to public homepage
+      setMeta({});
+      setPreviewAvatarUrl(null);
+      navigate('/'); // ✅ Redirect to homepage
     } catch (err) {
       console.error('Logout failed', err);
     }
