@@ -1,0 +1,33 @@
+# Use official Node image (Debian-based) to avoid musl issues
+FROM node:20-slim AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Disable binary resolution for Rollup
+ENV ROLLUP_NO_BINARY_DOWNLOAD=1
+
+# Copy package files and install deps
+COPY package*.json ./
+RUN npm install --verbose --ignore-scripts
+
+# Copy source code and build
+COPY . .
+RUN npm run build
+
+# ----------
+
+# Use a lightweight web server to serve the build
+FROM nginx:stable-alpine
+
+# Remove default nginx static files
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built files from previous stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx server
+CMD ["nginx", "-g", "daemon off;"]

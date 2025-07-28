@@ -1,28 +1,23 @@
-# fly.toml app configuration file generated for mini-blog-api on 2025-07-28T08:59:19-04:00
+# fly.toml app configuration file generated for mini-blog-client on 2025-07-27T22:38:32-04:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'mini-blog-api'
+app = 'mini-blog-client'
 primary_region = 'iad'
 
 [build]
 dockerfile = "Dockerfile.prod"
-context = "."
-
-[env]
-  NODE_ENV = 'production'
 
 [http_service]
-  internal_port = 3000
+  internal_port = 80
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  max_machines_running = 1
   processes = ['app']
 
 [[vm]]
-  memory = '512mb'
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1

@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ['mini-blog-client.fly.dev'],
     host: true,
     watch: {
       usePolling: true,

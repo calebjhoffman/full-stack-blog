@@ -17,10 +17,20 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.CLIENT_ORIGIN,
+  "https://full-stack-blog-j9jt2rnus-calebs-projects-cb45dd6a.vercel.app"
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN,
-  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow tools like Postman
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true // ⬅️ This allows cookies + headers like Authorization
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
