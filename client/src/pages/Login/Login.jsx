@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   return (
     <Container maxWidth="sm">
-      <Paper sx={{ padding: 4, marginTop: 8 }}>
+      <Paper sx={{ padding: 4}}>
         <Typography variant="h4" gutterBottom align="center">
           Welcome Back 👋
         </Typography>
