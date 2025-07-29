@@ -95,12 +95,12 @@ export default function ProtectedLayout() {
         sx={(theme) => ({
           flexGrow: 1,
           px: { xs: 2, sm: 3, md: 4 },
-          pt: 10, // replaces mt: 8 and p: 3 for clarity
+          pt: { xs: 12, sm: 10 }, // ✅ Top padding adjusts for AppBar height
           width: {
             xs: '100%',
             md: isSidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
           },
-          transition: theme.transitions.create('width', {
+          transition: theme.transitions.create(['width', 'padding'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
@@ -110,4 +110,5 @@ export default function ProtectedLayout() {
       </Box>
     </Box>
   );
+
 }
