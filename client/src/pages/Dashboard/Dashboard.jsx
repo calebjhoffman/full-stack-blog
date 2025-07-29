@@ -60,7 +60,7 @@ export default function Dashboard() {
   };
 
   return (
-    <Box>
+    <Box pt={3}>
       <Typography variant="h4" gutterBottom>
         Welcome, {user?.name} 👋
       </Typography>
