@@ -50,110 +50,122 @@ return (
   >
     <Toolbar
       sx={{
-        flexDirection: { xs: 'column', sm: 'row' },  // ✅ stack on mobile
-        alignItems: { xs: 'flex-start', sm: 'center' },
-        justifyContent: 'space-between',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
         gap: 1,
         py: 1,
+        px: { xs: 2, sm: 3 },
       }}
     >
-      {/* Left side */}
-      <Box 
+      {/* Row 1: Menu + Site Name on left, Avatar on right */}
+      <Box
         sx={{
           display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          gap: 1,
-          mb: { xs: 1, sm: 0 }, // space below logo on mobile
+          width: '100%',
         }}
       >
-        {user && isProtectedRoute && (
-          <>
-            <IconButton
-              onClick={onMobileToggle}
-              sx={{
-                mr: 2,
-                display: { md: 'none' },
-                '&:focus': { outline: 'none', boxShadow: 'none' },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {user && isProtectedRoute && (
+            <>
+              <IconButton
+                onClick={onMobileToggle}
+                sx={{
+                  display: { md: 'none' },
+                  '&:focus': { outline: 'none', boxShadow: 'none' },
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
 
-            <IconButton
-              color="inherit"
-              onClick={onSidebarToggle}
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'inline-flex' },
-                '&:focus': { outline: 'none', boxShadow: 'none' },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          </>
-        )}
+              <IconButton
+                color="inherit"
+                onClick={onSidebarToggle}
+                sx={{
+                  display: { xs: 'none', md: 'inline-flex' },
+                  '&:focus': { outline: 'none', boxShadow: 'none' },
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </>
+          )}
 
-        <Typography
-          variant="h6"
-          component={Link}
-          to="/"
-          sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 600 }}
-        >
-          📰 Mini Blog
-        </Typography>
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 600 }}
+          >
+            📰 Mini Blog
+          </Typography>
+        </Box>
+
+        {user && <AvatarMenu />}
       </Box>
 
-      {/* Right side */}
-      <Box   
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
-          gap: 1,
-        }}
-      >
-        <IconButton
-          color="inherit"
-          onClick={handleThemeToggle}
-          sx={{ mr: 1, '&:focus': { outline: 'none', boxShadow: 'none' } }}
+      {/* Row 2: Theme toggle left, Create Post right */}
+      {user && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+            flexWrap: 'wrap',
+            gap: 1,
+          }}
         >
-          {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-        </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={handleThemeToggle}
+            sx={{ '&:focus': { outline: 'none', boxShadow: 'none' } }}
+          >
+            {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
 
-        {user ? (
-          <>
-            <Button
-              component={Link}
-              to="/create-post"
-              color="inherit"
-              sx={{ mr: 2, textTransform: 'none' }}
-            >
-              Create Post
-            </Button>
-            <AvatarMenu />
-          </>
-        ) : (
-          <>
-            <Button
-              component={Link}
-              to="/login"
-              color="inherit"
-              sx={{ textTransform: 'none' }}
-            >
-              Login
-            </Button>
-            <Button
-              component={Link}
-              to="/signup"
-              color="inherit"
-              sx={{ ml: 1, textTransform: 'none' }}
-            >
-              Signup
-            </Button>
-          </>
-        )}
-      </Box>
+          <Button
+            component={Link}
+            to="/create-post"
+            color="inherit"
+            sx={{ textTransform: 'none' }}
+          >
+            Create Post
+          </Button>
+        </Box>
+      )}
+
+      {/* Guest Buttons */}
+      {!user && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 1,
+            width: '100%',
+          }}
+        >
+          <Button
+            component={Link}
+            to="/login"
+            color="inherit"
+            sx={{ textTransform: 'none' }}
+          >
+            Login
+          </Button>
+          <Button
+            component={Link}
+            to="/signup"
+            color="inherit"
+            sx={{ textTransform: 'none' }}
+          >
+            Signup
+          </Button>
+        </Box>
+      )}
     </Toolbar>
   </AppBar>
 );
