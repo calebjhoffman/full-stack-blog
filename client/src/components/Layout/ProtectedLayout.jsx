@@ -95,7 +95,7 @@ export default function ProtectedLayout() {
         sx={(theme) => ({
           flexGrow: 1,
           px: { xs: 2, sm: 3, md: 4 },
-          pt: { xs: 12, sm: 10 }, // ✅ Top padding adjusts for AppBar height
+          pt: { xs: 14, sm: 10 }, // ✅ Top padding adjusts for AppBar height
           width: {
             xs: '100%',
             md: isSidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
