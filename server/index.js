@@ -19,7 +19,8 @@ const app = express();
 
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
-  "https://full-stack-blog-five.vercel.app"
+  "https://full-stack-blog-five.vercel.app",
+  'https://blog.calebhoffman.com'
 ];
 
 app.use(cors({
