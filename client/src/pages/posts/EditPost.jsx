@@ -62,8 +62,12 @@ const handleSave = async () => {
     let featuredImagePath = meta.featured_image;
 
     if (featuredImageFile) {
+      console.log('🧪 Attempting upload with:', featuredImageFile);
+
       const formData = new FormData();
       formData.append('file', featuredImageFile);
+      formData.append('type', 'featured');
+      formData.append('postId', postId);
 
       const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
         method: 'POST',
@@ -71,8 +75,16 @@ const handleSave = async () => {
         body: formData,
       });
 
-      if (!uploadRes.ok) throw new Error('Image upload failed');
+      console.log('📤 Upload response status:', uploadRes.status);
+
+      if (!uploadRes.ok) {
+        const errorText = await uploadRes.text();
+        console.error('❌ Upload failed:', errorText);
+        throw new Error('Image upload failed');
+      }
+
       const uploadData = await uploadRes.json();
+      console.log('✅ Upload success:', uploadData);
       featuredImagePath = uploadData.url;
     }
 
