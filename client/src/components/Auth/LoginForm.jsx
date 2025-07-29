@@ -25,7 +25,9 @@ export default function LoginForm() {
         body: JSON.stringify(form),
         credentials: 'include',
       });
+      alert(`Login status: ${res.status}`);
     } catch (err) {
+      alert('Login failed: Network error');
       setError('Network error. Please try again.');
       return;
     }
@@ -35,18 +37,26 @@ export default function LoginForm() {
       data = await res.json();
     } catch (err) {
       const text = await res.text();
-      console.error('❌ JSON parse failed. Raw response:', text);
+      alert('❌ JSON parse error. Raw response:\n' + text);
       setError('Unexpected server response');
       return;
     }
 
+    // TEMP: Check if refreshUser works
     if (res.ok) {
+      const metaRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/meta`, {
+        credentials: 'include',
+      });
+      alert(`Meta fetch after login: ${metaRes.status}`);
+      
       await refreshUser();
       navigate('/dashboard');
     } else {
+      alert(`Login failed: ${data.error || 'unknown error'}`);
       setError(data.error || 'Login failed');
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit}>
