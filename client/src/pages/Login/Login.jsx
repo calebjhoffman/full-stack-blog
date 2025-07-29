@@ -15,7 +15,7 @@ export default function LoginPage() {
   if (loading) return null;
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" paddingTop="80px">
       <Paper sx={{ padding: 4}}>
         <Typography variant="h4" gutterBottom align="center">
           Welcome Back 👋
