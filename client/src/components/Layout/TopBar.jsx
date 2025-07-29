@@ -48,13 +48,22 @@ return (
       backgroundColor: 'primary.main',
     }}
   >
-    <Toolbar sx={{ justifyContent: 'space-between' }}>
+    <Toolbar
+      sx={{
+        flexDirection: { xs: 'column', sm: 'row' },  // ✅ stack on mobile
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        justifyContent: 'space-between',
+        gap: 1,
+        py: 1,
+      }}
+    >
       {/* Left side */}
       <Box 
         sx={{
-          flexWrap: 'wrap', // 🧠 allow wrapping on small screens
-          justifyContent: 'space-between',
-          rowGap: 1, // vertical spacing if things wrap
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          mb: { xs: 1, sm: 0 }, // space below logo on mobile
         }}
       >
         {user && isProtectedRoute && (
@@ -99,10 +108,9 @@ return (
         sx={{
           display: 'flex',
           alignItems: 'center',
-          flexWrap: 'wrap', // ✅ enable wrapping for buttons
-          justifyContent: { xs: 'center', sm: 'flex-end' },
-          gap: 1, // add spacing between items
-          mt: { xs: 1, md: 0 }, // spacing on mobile if it wraps
+          flexWrap: 'wrap',
+          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+          gap: 1,
         }}
       >
         <IconButton
