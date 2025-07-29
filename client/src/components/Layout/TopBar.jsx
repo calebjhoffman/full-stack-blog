@@ -93,7 +93,14 @@ return (
           variant="h6"
           component={Link}
           to="/"
-          sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 600 }}
+          noWrap // ✅ prevents wrapping
+          sx={{
+            textDecoration: 'none',
+            color: 'inherit',
+            fontWeight: 600,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
         >
           📰 Mini Blog
         </Typography>
