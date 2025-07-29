@@ -7,6 +7,9 @@ export default function Signup() {
   const navigate = useNavigate();
   const [checkingAuth, setCheckingAuth] = useState(true);
 
+  //Turn the signup form on and off.. False = off
+  const allowSignup = false;
+
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/me`, {
       credentials: 'include',
@@ -28,7 +31,11 @@ export default function Signup() {
           Create Your Account
         </Typography>
         <Box mt={2}>
-          <p>We Aren't letting you sign up right now...sorry..</p>
+          {allowSignup ? (
+            <SignupForm />
+          ) : (
+            <p>We aren't letting you sign up right now...sorry.</p>
+          )}
         </Box>
       </Paper>
     </Container>
