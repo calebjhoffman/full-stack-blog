@@ -112,12 +112,20 @@ const handleSave = async () => {
   if (loading) return <CircularProgress />;
 
   return (
-    <Box sx={{ px: { xs: 2, sm: 4, md: 8 }, py: 6, width:'70vw'}}>
+    <Container maxWidth="md" sx={{ mt: 6 }}>
       <Typography variant="h4" gutterBottom>
         Edit Post
       </Typography>
 
-      <Paper sx={{ p: 4, borderRadius: 4 }}>
+      <Paper
+        sx={{
+          p: { xs: 2, sm: 4 },
+          borderRadius: 4,
+          width: '100%',
+          maxWidth: '100%',
+          minWidth: { sm: '400px' },
+        }}
+      >
         <TextField
           label="Title"
           fullWidth
@@ -142,19 +150,19 @@ const handleSave = async () => {
         </Box>
 
         <Box sx={{ mb: 4 }}>
-        <ImageUploader
-          label="Featured Image (recommended: 1600x500)"
-          initialUrl={featuredImageUrl}
-          uploadType="featured"
-          postId={post.id} // 🔥 must be valid!
-          onUpload={(fileObj) => {
-            setFeaturedImageFile(fileObj.file);        // ✅ store File
-            setFeaturedImageUrl(fileObj.preview);      // ✅ show preview
-          }}
-        />
+          <ImageUploader
+            label="Featured Image (recommended: 1600x500)"
+            initialUrl={featuredImageUrl}
+            uploadType="featured"
+            postId={post.id}
+            onUpload={(fileObj) => {
+              setFeaturedImageFile(fileObj.file);
+              setFeaturedImageUrl(fileObj.preview);
+            }}
+          />
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
           <Button
             variant="outlined"
             color="primary"
@@ -173,6 +181,7 @@ const handleSave = async () => {
           </Button>
         </Box>
       </Paper>
-    </Box>
+    </Container>
   );
+
 }

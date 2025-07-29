@@ -57,38 +57,45 @@ const handleSubmit = async (e) => {
 };
 
 
-  return (
-    <Container width='60vw'>
-      <Box component="form" onSubmit={handleSubmit} mt={4}
-        sx={{
-          mx: 'auto',
-          width: 1000, // ✅ Hardcoded width here
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-        }}
-      >
-        <Typography variant="h5" mb={2}>
-          Create New Post
+return (
+  <Container maxWidth="sm" sx={{ mt: 4 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        width: '100%',            // ✅ Fill container
+        maxWidth: '100%',         // ✅ Prevent overflow
+        minWidth: { sm: '400px' }, // ✅ Prevent over-shrinking on tablet
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+      }}
+    >
+      <Typography variant="h5" mb={2}>
+        Create New Post
+      </Typography>
+      {error && (
+        <Typography color="error" mb={2}>
+          {error}
         </Typography>
-        {error && <Typography color="error" mb={2}>{error}</Typography>}
-        <TextField
-          label="Title"
-          fullWidth
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          margin="normal"
-          required
-        />
-        <TinyMCEEditor content={content} onChange={setContent} height={600} />
-        <ImageUploader
-          label="Featured Image"
-          onUpload={(file) => setFeaturedImageFile(file)}
-        />
-        <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-          Submit
-        </Button>
-      </Box>
-    </Container>
-  );
+      )}
+      <TextField
+        label="Title"
+        fullWidth
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        margin="normal"
+        required
+      />
+      <TinyMCEEditor content={content} onChange={setContent} height={600} />
+      <ImageUploader
+        label="Featured Image"
+        onUpload={(file) => setFeaturedImageFile(file)}
+      />
+      <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+        Submit
+      </Button>
+    </Box>
+  </Container>
+);
 }
