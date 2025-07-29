@@ -10,6 +10,7 @@ import {
   Paper,
   Button,
   CircularProgress,
+  Container,
 } from '@mui/material';
 
 export default function EditPost() {
