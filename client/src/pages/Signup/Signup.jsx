@@ -28,7 +28,7 @@ export default function Signup() {
           Create Your Account
         </Typography>
         <Box mt={2}>
-          <SignupForm />
+          <p>We Aren't letting you sign up right now...sorry..</p>
         </Box>
       </Paper>
     </Container>
