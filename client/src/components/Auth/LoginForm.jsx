@@ -44,10 +44,18 @@ export default function LoginForm() {
 
     // TEMP: Check if refreshUser works
     if (res.ok) {
-      const metaRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/meta`, {
-        credentials: 'include',
+      const metaRes = await fetch(`${BASE_URL}/auth/meta`, {
+      credentials: 'include',
+      }).catch(err => {
+        alert('Fetch error: ' + err.message);
       });
-      alert(`Meta fetch after login: ${metaRes.status}`);
+
+      if (metaRes) {
+        alert(`Meta fetch status: ${metaRes.status}`);
+        const text = await metaRes.text();
+        alert(`Meta response: ${text}`);
+      }
+     
       
       await refreshUser();
       navigate('/dashboard');
