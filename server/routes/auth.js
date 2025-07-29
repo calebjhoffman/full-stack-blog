@@ -9,8 +9,7 @@ import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
-//const isProd = process.env.NODE_ENV === 'production';
-const isProd = true;
+const isProd = process.env.NODE_ENV === 'production';
 
 router.post('/signup', async (req, res) => {
   const { email, password, name } = req.body;
