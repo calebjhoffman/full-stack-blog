@@ -135,9 +135,9 @@ const handleSave = async () => {
           initialUrl={featuredImageUrl}
           uploadType="featured"
           postId={post.id} // 🔥 must be valid!
-          onUpload={({ url }) => {
-            setFeaturedImageFile(url);
-            setFeaturedImageUrl(url);
+          onUpload={(fileObj) => {
+            setFeaturedImageFile(fileObj.file);        // ✅ store File
+            setFeaturedImageUrl(fileObj.preview);      // ✅ show preview
           }}
         />
         </Box>

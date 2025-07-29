@@ -19,7 +19,7 @@ const app = express();
 
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
-  "https://full-stack-blog-j9jt2rnus-calebs-projects-cb45dd6a.vercel.app"
+  "https://full-stack-blog-five.vercel.app"
 ];
 
 app.use(cors({

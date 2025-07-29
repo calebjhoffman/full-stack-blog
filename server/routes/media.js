@@ -55,10 +55,15 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
       sharpInstance.resize(512); // ✅ Avatar or default
     }
 
-    await sharpInstance
-      .toFormat('jpeg')
-      .jpeg({ quality: 85 })
-      .toFile(filePath);
+    try {
+      await sharpInstance
+        .toFormat('jpeg')
+        .jpeg({ quality: 85 })
+        .toFile(filePath);
+      console.log('🖼️ Image successfully written:', filePath);
+    } catch (err) {
+      console.error('❌ Sharp failed to write file:', err);
+    }
 
     const fileUrl = `/uploads/${fileName}`;
     const mimetype = req.file.mimetype;
