@@ -50,7 +50,13 @@ return (
   >
     <Toolbar sx={{ justifyContent: 'space-between' }}>
       {/* Left side */}
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box 
+        sx={{
+          flexWrap: 'wrap', // 🧠 allow wrapping on small screens
+          justifyContent: 'space-between',
+          rowGap: 1, // vertical spacing if things wrap
+        }}
+      >
         {user && isProtectedRoute && (
           <>
             <IconButton
@@ -89,7 +95,16 @@ return (
       </Box>
 
       {/* Right side */}
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box   
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          flexWrap: 'wrap', // ✅ enable wrapping for buttons
+          justifyContent: { xs: 'center', sm: 'flex-end' },
+          gap: 1, // add spacing between items
+          mt: { xs: 1, md: 0 }, // spacing on mobile if it wraps
+        }}
+      >
         <IconButton
           color="inherit"
           onClick={handleThemeToggle}
