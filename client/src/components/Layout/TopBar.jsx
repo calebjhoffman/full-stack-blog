@@ -51,71 +51,64 @@ return (
     <Toolbar
       sx={{
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: 1,
+        flexDirection: {
+          xs: 'column',
+          sm: 'row',
+        },
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: { xs: 1, sm: 0 },
         py: 1,
         px: { xs: 2, sm: 3 },
       }}
     >
-      {/* Row 1: Menu + Site Name on left, Avatar on right */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {user && isProtectedRoute && (
-            <>
-              <IconButton
-                onClick={onMobileToggle}
-                sx={{
-                  display: { md: 'none' },
-                  '&:focus': { outline: 'none', boxShadow: 'none' },
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
+      {/* Left: nav toggle + site name */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {user && isProtectedRoute && (
+          <>
+            <IconButton
+              onClick={onMobileToggle}
+              sx={{
+                display: { md: 'none' },
+                '&:focus': { outline: 'none', boxShadow: 'none' },
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              onClick={onSidebarToggle}
+              sx={{
+                display: { xs: 'none', md: 'inline-flex' },
+                '&:focus': { outline: 'none', boxShadow: 'none' },
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </>
+        )}
 
-              <IconButton
-                color="inherit"
-                onClick={onSidebarToggle}
-                sx={{
-                  display: { xs: 'none', md: 'inline-flex' },
-                  '&:focus': { outline: 'none', boxShadow: 'none' },
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-            </>
-          )}
-
-          <Typography
-            variant="h6"
-            component={Link}
-            to="/"
-            sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 600 }}
-          >
-            📰 Mini Blog
-          </Typography>
-        </Box>
-
-        {user && <AvatarMenu />}
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/"
+          sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 600 }}
+        >
+          📰 Mini Blog
+        </Typography>
       </Box>
 
-      {/* Row 2: Theme toggle left, Create Post right */}
+      {/* Center: theme toggle + create post (auto pushes avatar right) */}
       {user && (
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            width: '100%',
-            flexWrap: 'wrap',
             gap: 1,
+            flexWrap: 'wrap',
+            justifyContent: { xs: 'space-between', sm: 'flex-end' },
+            width: '100%',
+            mt: { xs: 1, sm: 0 },
           }}
         >
           <IconButton
@@ -134,20 +127,14 @@ return (
           >
             Create Post
           </Button>
+
+          <AvatarMenu />
         </Box>
       )}
 
-      {/* Guest Buttons */}
+      {/* Guest view */}
       {!user && (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            gap: 1,
-            width: '100%',
-          }}
-        >
+        <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             component={Link}
             to="/login"
@@ -167,6 +154,7 @@ return (
         </Box>
       )}
     </Toolbar>
+
   </AppBar>
 );
 
