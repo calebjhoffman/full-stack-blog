@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import slugify from 'slugify';
 import ImageUploader from '../../components/media/ImageUploader';
@@ -22,10 +22,15 @@ export default function EditPost() {
   const [meta, setMeta] = useState({});
   const [featuredImageFile, setFeaturedImageFile] = useState(null);
   const [featuredImageUrl, setFeaturedImageUrl] = useState('');
+  const [focusKeyword, setFocusKeyword] = useState('');
+  const [secondaryKeywords, setSecondaryKeywords] = useState('');
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [slug, setSlug] = useState('');
+
+  const [generating, setGenerating] = useState(false);
+  const editorRef = useRef(null);
 
 
   useEffect(() => {
@@ -40,6 +45,14 @@ export default function EditPost() {
           setFeaturedImageUrl(`${import.meta.env.VITE_SERVER_PUBLIC_URL}${data.meta.featured_image}`);
         }
 
+        setFocusKeyword(data.meta.focus_keyword || '');
+
+        try {
+          const parsedSecondary = JSON.parse(data.meta.secondary_keywords || '[]');
+          setSecondaryKeywords(parsedSecondary.join(', '));
+        } catch {
+          setSecondaryKeywords('');
+        }
 
         setPost(data.post);
         setMeta(data.meta || {});
@@ -89,7 +102,16 @@ const handleSave = async () => {
       featuredImagePath = uploadData.url;
     }
 
-    // ✅ All goes into the PATCH
+    // 🧠 Build meta object to send
+    const updatedMeta = {
+      focus_keyword: focusKeyword,
+      secondary_keywords: secondaryKeywords
+        .split(',')
+        .map((kw) => kw.trim())
+        .filter(Boolean),
+    };
+
+    // ✅ Send PATCH with all fields
     const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts/${postId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -99,6 +121,7 @@ const handleSave = async () => {
         content,
         slug,
         featuredImage: featuredImagePath,
+        meta: updatedMeta,
       }),
     });
 
@@ -110,10 +133,77 @@ const handleSave = async () => {
   }
 };
 
+const handleGenerateContent = async () => {
+  const secondary = secondaryKeywords
+    .split(',')
+    .map((kw) => kw.trim())
+    .filter(Boolean);
+
+  const prompt = `Write the inner content of a blog article titled "${title}". The focus keyword is "${focusKeyword}", and the secondary keywords are: ${secondary.join(', ') || 'none'}. 
+  Do not include <html>, <head>, <body>, or any markdown-style code block formatting. Just return clean HTML that can be directly embedded inside a content editor. Use unordered and ordered lists in some parts to keep the format diverse and clean`;
+
+  try {
+    setGenerating(true);
+
+    const res = await fetch(`${import.meta.env.VITE_SERVER_PUBLIC_URL}/openai/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ prompt }),
+    });
+
+    if (!res.ok || !res.body) {
+      throw new Error('Streaming failed');
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    let contentBuffer = '';
+    let visibleContent = '';
+    let lastUpdate = Date.now();
+
+    const flushBuffer = () => {
+      if (editorRef.current && contentBuffer) {
+        visibleContent += contentBuffer;
+        editorRef.current.setContent(visibleContent);
+        contentBuffer = '';
+        lastUpdate = Date.now();
+      }
+    };
+
+    const interval = setInterval(flushBuffer, 300); // 💡 every 300ms
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      contentBuffer += chunk;
+    }
+
+    clearInterval(interval);
+
+    // 🔥 Clean up GPT markdown-style wrappers
+    visibleContent = visibleContent.replace(/^```html\s*/i, '').replace(/```$/, '');
+
+    flushBuffer();              // Final TinyMCE update
+    setContent(visibleContent); // Sync content state
+
+  } catch (err) {
+    console.error('Streaming error:', err);
+  } finally {
+    setGenerating(false);
+  }
+};
+
+
+
+
   if (loading) return <CircularProgress />;
 
   return (
-    <Container maxWidth="md" sx={{ mt: 6 }}>
+    <Container sx={{ mt: 6, maxWidth:'1200px' }}>
       <Typography variant="h4" gutterBottom>
         Edit Post
       </Typography>
@@ -145,9 +235,36 @@ const handleSave = async () => {
           sx={{ mb: 3 }}
           helperText="This becomes part of the URL. Must be unique."
         />
+        <TextField
+          label="Focus Keyword"
+          value={focusKeyword}
+          onChange={(e) => setFocusKeyword(e.target.value)}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
 
+        <TextField
+          label="Secondary Keywords (comma separated)"
+          value={secondaryKeywords}
+          onChange={(e) => setSecondaryKeywords(e.target.value)}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        <Button
+          variant="outlined"
+          onClick={handleGenerateContent}
+          disabled={!title || !focusKeyword || generating}
+          sx={{ mb: 2 }}
+        >
+          {generating ? 'Generating...' : 'Generate Content with AI'}
+        </Button>
         <Box sx={{ mb: 3 }}>
-          <TinyMCEEditor content={content} onChange={setContent} height={1000} />
+          <TinyMCEEditor
+            ref={editorRef}
+            content={content}
+            onChange={setContent}
+            height={1000}
+          />
         </Box>
 
         <Box sx={{ mb: 4 }}>

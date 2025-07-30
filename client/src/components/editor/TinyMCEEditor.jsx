@@ -1,18 +1,31 @@
 // TinyMCEEditor.jsx
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import { useTheme } from '@mui/material/styles';
-import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function TinyMCEEditor({ content, onChange, height = 600 }) {
+const TinyMCEEditor = forwardRef(function TinyMCEEditor({ content, onChange, height = 600 }, ref) {
   const editorRef = useRef(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
+  // Expose setContent and getContent methods to parent
+  useImperativeHandle(ref, () => ({
+    setContent: (html) => {
+      editorRef.current?.setContent(html);
+    },
+    getContent: () => {
+      return editorRef.current?.getContent();
+    },
+  }));
+
   return (
     <Editor
-      key={theme.palette.mode} // rerenders on theme change
+      onInit={(evt, editor) => {
+        editorRef.current = editor;
+      }}
+      key={theme.palette.mode}
       apiKey="022lwodjci7082m62n4p6mm5rjhjokie7osayymmp7if5p6v"
-      value={content} // ✅ controlled mode
+      value={content}
       onEditorChange={onChange}
       init={{
         height,
@@ -34,4 +47,6 @@ export default function TinyMCEEditor({ content, onChange, height = 600 }) {
       }}
     />
   );
-}
+});
+
+export default TinyMCEEditor;

@@ -11,54 +11,66 @@ export default function CreatePost() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [featuredImageFile, setFeaturedImageFile] = useState(null);
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
+  const [focusKeyword, setFocusKeyword] = useState('');
+  const [secondaryKeywords, setSecondaryKeywords] = useState('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  try {
-    // 1. Create the post first
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, content }),
-    });
+    try {
+      // Build post meta
+      const meta = {
+        focus_keyword: focusKeyword,
+        secondary_keywords: secondaryKeywords
+          .split(',')
+          .map((kw) => kw.trim())
+          .filter(Boolean),
+      };
 
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'Failed to create post');
-    }
-
-    const newPost = await res.json();
-
-    // 2. Upload featured image if provided
-    if (featuredImageFile) {
-      const formData = new FormData();
-      formData.append('file', featuredImageFile.file);
-      formData.append('type', 'featured');
-      formData.append('postId', newPost.id);
-
-      const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
+      // 1. Create the post with meta
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/posts`, {
         method: 'POST',
         credentials: 'include',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, meta }),
       });
 
-      if (!uploadRes.ok) {
-        const uploadErr = await uploadRes.json();
-        throw new Error(uploadErr.error || 'Image upload failed');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create post');
       }
-    }
 
-    navigate('/dashboard');
-  } catch (err) {
-    setError(err.message);
-  }
-};
+      const newPost = await res.json();
+
+      // 2. Upload featured image if provided
+      if (featuredImageFile) {
+        const formData = new FormData();
+        formData.append('file', featuredImageFile.file);
+        formData.append('type', 'featured');
+        formData.append('postId', newPost.id);
+
+        const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const uploadErr = await uploadRes.json();
+          throw new Error(uploadErr.error || 'Image upload failed');
+        }
+      }
+
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
 
 
 return (
-  <Container maxWidth="sm" sx={{ mt: 4 }}>
+  <Container sx={{ mt: 4, maxWidth:'1200px' }}>
     <Box
       component="form"
       onSubmit={handleSubmit}
@@ -86,6 +98,21 @@ return (
         onChange={(e) => setTitle(e.target.value)}
         margin="normal"
         required
+      />
+      <TextField
+        label="Focus Keyword"
+        value={focusKeyword}
+        onChange={(e) => setFocusKeyword(e.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+
+      <TextField
+        label="Secondary Keywords (comma separated)"
+        value={secondaryKeywords}
+        onChange={(e) => setSecondaryKeywords(e.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
       />
       <TinyMCEEditor content={content} onChange={setContent} height={600} />
       <ImageUploader

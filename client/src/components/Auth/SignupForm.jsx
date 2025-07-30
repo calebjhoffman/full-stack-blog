@@ -6,6 +6,7 @@ import {
   Button,
   Stack
 } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 
 export default function SignupForm() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -26,8 +27,7 @@ export default function SignupForm() {
 
     const data = await res.json();
     if (res.ok) {
-      await refreshUser();
-      navigate('/dashboard');
+      navigate('/verify-email-sent');
     } else {
       setError(data.error || 'Signup failed');
     }
@@ -66,10 +66,20 @@ export default function SignupForm() {
       </Stack>
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
         Already have an account?{' '}
-        <Link to="/" style={{ color: '#1976d2', textDecoration: 'none' }}>
+        <Link to="/login" style={{ color: '#1976d2', textDecoration: 'none' }}>
           Log in
         </Link>
       </p>
+      <Button
+        variant="outlined"
+        startIcon={<GoogleIcon />}
+        onClick={() => {
+          window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;
+        }}
+        fullWidth
+        >
+          Continue with Google
+      </Button>
     </form>
   );
 }

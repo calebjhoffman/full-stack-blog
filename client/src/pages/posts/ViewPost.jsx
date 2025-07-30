@@ -138,6 +138,7 @@ export default function ViewPost() {
               <Box
                 component="article"
                 sx={{
+                  fontFamily: `'Poppins', sans-serif`,
                   fontSize: '1.1rem',
                   lineHeight: 1.8,
                   color: theme.palette.text.primary, // ✅ themed text

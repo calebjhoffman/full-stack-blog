@@ -143,6 +143,13 @@ return (
       {/* Guest view */}
       {!user && (
         <Box sx={{ display: 'flex', gap: 1 }}>
+            <IconButton
+              color="inherit"
+              onClick={handleThemeToggle}
+              sx={{ '&:focus': { outline: 'none', boxShadow: 'none' } }}
+            >
+              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
           <Button
             component={Link}
             to="/login"

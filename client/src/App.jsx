@@ -10,7 +10,8 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import ProtectedLayout from './components/Layout/ProtectedLayout';
 import PublicLayout from './components/Layout/PublicLayout';
 import UserSettings from './pages/Settings/User/UserSettings';
-
+import VerifyEmail from './pages/VerifyEmail/VerifyEmail';
+import VerifyEmailSent from './pages/VerifyEmail/VerifyEmailSent';
 
 export default function App() {
   return (
@@ -21,6 +22,8 @@ export default function App() {
             <Route path="/posts/:slug" element={<ViewPost />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

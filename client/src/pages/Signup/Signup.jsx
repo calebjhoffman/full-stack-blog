@@ -8,7 +8,7 @@ export default function Signup() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   //Turn the signup form on and off.. False = off
-  const allowSignup = false;
+  const allowSignup = true;
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/me`, {
@@ -25,8 +25,8 @@ export default function Signup() {
   if (checkingAuth) return null; // Optionally show a spinner
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ padding: 4, marginTop: 8 }}>
+    <Container maxWidth="sm" sx={{ pt: '80px' }}>
+      <Paper elevation={3} sx={{ padding: 4}}>
         <Typography variant="h4" gutterBottom align="center">
           Create Your Account
         </Typography>

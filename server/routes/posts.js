@@ -80,7 +80,7 @@ router.post('/', authenticateToken, async (req, res) => {
       },
     });
 
-    // ✅ Now handle featuredImage before responding
+    // ✅ Save featured image
     if (featuredImage) {
       await upsertPostMeta(post.id, 'featured_image', featuredImage);
     }
@@ -91,6 +91,7 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to create post' });
   }
 });
+
 
 
 router.get('/:param', async (req, res) => {
@@ -143,7 +144,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
 router.patch('/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { title, content, slug, featuredImage } = req.body;
+  const { title, content, slug, featuredImage, meta } = req.body;
 
   try {
     const post = await prisma.post.findUnique({ where: { id } });
@@ -157,12 +158,21 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       data: { title, content, slug },
     });
 
+    // ✅ Save featured image
     if (featuredImage) {
       await upsertPostMeta(id, 'featured_image', featuredImage);
     }
 
-    console.log(`✅ Post ${id} updated. New slug: ${updated.slug}`); // 💥 your log
+    // ✅ Save new meta fields
+    if (meta && typeof meta === 'object') {
+      for (const [key, rawValue] of Object.entries(meta)) {
+        const value =
+          typeof rawValue === 'object' ? JSON.stringify(rawValue) : String(rawValue);
+        await upsertPostMeta(id, key, value);
+      }
+    }
 
+    console.log(`✅ Post ${id} updated. New slug: ${updated.slug}`);
     res.status(200).json(updated);
 
   } catch (err) {
@@ -173,6 +183,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to update post' });
   }
 });
+
 
 
 export default router;

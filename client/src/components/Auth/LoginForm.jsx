@@ -6,6 +6,7 @@ import {
   Button,
   Stack
 } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google'; // optional icon
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -88,6 +89,16 @@ export default function LoginForm() {
           Create one
         </Link>
       </p>
+      <Button
+        variant="outlined"
+        startIcon={<GoogleIcon />}
+        onClick={() => {
+          window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;
+        }}
+        fullWidth
+      >
+        Continue with Google
+      </Button>
     </form>
   );
 }

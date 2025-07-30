@@ -5,40 +5,88 @@ import { PrismaClient } from '@prisma/client';
 import { setUserMeta, getUserMeta } from '../lib/userMeta.js';
 import authenticateToken from '../middleware/authenticateToken.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
+import crypto from 'crypto';
+import { sendVerificationEmail } from '../utils/sendVerificationEmail.js';
+import passport from 'passport';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 const isProd = process.env.NODE_ENV === 'production';
 
+
+// Kick off the login
+router.get('/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+}));
+
+// Google redirects back here
+router.get('/google/callback', passport.authenticate('google', {
+  failureRedirect: '/login',
+  session: true,
+}), async (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  // ✅ Generate your normal access/refresh tokens
+  const accessToken = generateAccessToken(req.user.id);
+  const refreshToken = generateRefreshToken(req.user.id);
+
+  // ✅ Set cookies just like normal login
+  res
+    .cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'None' : 'Lax',
+      maxAge: 15 * 60 * 1000,
+    })
+    .cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'None' : 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+    .redirect(`${process.env.CLIENT_ORIGIN}/dashboard`); // ✅ After login, go to dashboard
+});
+
 router.post('/signup', async (req, res) => {
   const { email, password, name } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await prisma.user.create({ data: { email, password: hashedPassword, name } });
 
-    const accessToken = generateAccessToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
-
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'None' : 'Lax',
-      maxAge: 12 * 60 * 60 * 1000,
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        isVerified: false,
+      },
     });
 
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'None' : 'Lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+    // Generate secure token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+    // Store token in DB
+    await prisma.verificationToken.create({
+      data: {
+        email,
+        token,
+        expiresAt,
+      },
     });
 
-    res.status(201).json({ message: 'User created' });
+    // Send email
+    await sendVerificationEmail({ toEmail: email, token });
+
+    res.status(201).json({
+      message: 'User created. Verification email sent.',
+    });
   } catch (err) {
     console.error(err);
-    res.status(400).json({ error: 'Signup failed. Email may already exist.' });
+    res.status(400).json({
+      error: 'Signup failed. Email may already exist.',
+    });
   }
 });
 
@@ -145,8 +193,6 @@ router.get('/meta', authenticateToken, async (req, res) => {
 });
 
 
-
-
 router.patch('/meta', authenticateToken, async (req, res) => {
   const updates = req.body;
   const userId = req.user.userId;
@@ -178,6 +224,82 @@ router.patch('/meta', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
+
+router.get('/verify-email', async (req, res) => {
+  console.log('🔁 VERIFY ROUTE HIT:', req.originalUrl);
+  const { token } = req.query;
+  const isProd = process.env.NODE_ENV === 'production';
+
+  if (!token || typeof token !== 'string' || token.trim() === '') {
+    return res.status(400).json({ error: 'Missing or malformed token' });
+  }
+
+  try {
+    const tokenEntry = await prisma.verificationToken.findUnique({
+      where: { token },
+    });
+    console.log(tokenEntry);
+    if (!tokenEntry) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    if (tokenEntry.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'Token has expired' });
+    }
+
+    const user = await prisma.user.update({
+      where: { email: tokenEntry.email },
+      data: { isVerified: true },
+    });
+
+    await prisma.verificationToken.delete({
+      where: { token },
+    });
+
+    // ✅ Generate login tokens
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
+
+    res
+      .cookie('access_token', accessToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'None' : 'Lax',
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'None' : 'Lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({ message: 'Email verified and logged in' });
+  } catch (err) {
+    console.error('❌ Verification error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/verify-token', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ error: 'Missing token' });
+  }
+
+  try {
+    await prisma.verificationToken.delete({
+      where: { token },
+    });
+
+    res.status(200).json({ message: 'Token deleted' });
+  } catch (err) {
+    console.error('❌ Failed to delete token:', err);
+    res.status(500).json({ error: 'Failed to delete token' });
+  }
+});
+
 
 
 router.post('/logout', (req, res) => {
