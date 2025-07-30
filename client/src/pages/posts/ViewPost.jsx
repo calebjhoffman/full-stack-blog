@@ -99,11 +99,24 @@ export default function ViewPost() {
             }}
           >
             <Typography
-              variant="h2"
+              component="h1"
+              variant="h4"
               sx={{
                 color: '#fff',
                 fontWeight: 700,
-                marginBottom: 3,
+                mb: 3,
+                fontSize: {
+                  xs: '1.8rem',
+                  sm: '2.2rem',
+                  md: '3rem',
+                },
+                lineHeight: 1.3,
+                textAlign: {
+                  xs: 'center',
+                  sm: 'center',
+                  md: 'left',
+                },
+                width: '100%',
               }}
             >
               {post.title}
