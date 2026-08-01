@@ -21,19 +21,6 @@ A fully functional, Dockerized, production-ready **full stack blog CMS** — bui
 
 ---
 
-## 📸 Screenshots
-
-*Add screenshots of your homepage, create post view, and dark/light toggle here once deployed.*
-
----
-
-## 🚀 Live Demo
-
-[https://yourdomain.com](https://yourdomain.com)
-
-> *Frontend and backend are deployed separately on Fly.io*
-
----
 
 ## 🧱 Tech Stack
 
