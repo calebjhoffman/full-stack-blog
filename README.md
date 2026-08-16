@@ -166,16 +166,17 @@ full-stack-blog/
 
 ## 📸 Screenshots
 
-Application screenshots will be added here to demonstrate the primary user flows and interface.
+### Sign In
+![Sign In](./screenshots/sign-in.png)
 
-Planned views include:
+### Public Blog
+![Public Blog](./screenshots/public-blog.png)
 
-* Public blog
-* Authentication
-* Content management
-* Rich-text post editor
-* User profile/settings
-* Dark and light themes
+### Private Dashboard
+![Private Dashboard](./screenshots/dashboard.png)
+
+### Create / Edit Post
+![Post Editor](./screenshots/post-editor.png)
 
 ---
 
