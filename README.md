@@ -1,155 +1,389 @@
-# 📰 Mini Blog CMS – Full Stack Starter
+# 📰 Mini Blog CMS
 
-A fully functional, Dockerized, production-ready **full stack blog CMS** — built from scratch using modern industry practices. Includes user authentication, media uploads, dark mode support, and public/private routes.
+**Full-Stack Content Management Platform**
 
-> This app is designed as both a template and portfolio-quality proof of full stack development skill.
+A full-stack content management application built with **React, Node.js, Express, PostgreSQL, and Prisma**.
 
----
+Mini Blog CMS demonstrates a production-style client/server architecture with secure authentication, user profiles, media uploads, rich-text content creation, persistent user preferences, protected application routes, and a fully Dockerized local development environment.
 
-## 🔥 Features
-
-- 🔐 **JWT Auth (access + refresh tokens)**
-- 👤 **User profile with bio, avatar, and theme preference**
-- 🖼️ **Featured image uploads for posts**
-- 📝 **Rich text post editor (TinyMCE)**
-- 🌓 **Dark/light theme toggle, synced across UI, localStorage, and backend**
-- 🚫 **Protected routes for authenticated users**
-- 🌐 **Public blog view with custom author boxes**
-- 🐳 **Fully Dockerized (client + server + Postgres + pgAdmin)**
-- ☁️ **Production-deployable via Fly.io**
-- 💾 **Prisma ORM with PostgreSQL**
+The project was built to demonstrate practical full-stack application development beyond basic CRUD functionality, including authentication flows, relational database design, media handling, API development, frontend state management, and containerized infrastructure.
 
 ---
 
+## ✨ Features
+
+### 🔐 Authentication & Security
+
+* JWT-based authentication using access and refresh tokens
+* Protected backend API routes
+* Authentication-aware frontend routing
+* Refresh-token handling with cookies
+* User registration and login
+* Email verification workflow
+* Persistent authenticated sessions
+
+### 📝 Content Management
+
+* Create and manage blog posts
+* Rich-text editing with **TinyMCE**
+* Featured image uploads
+* Public blog views
+* Author information and profile display
+* Database-backed content using PostgreSQL
+
+### 👤 User Profiles
+
+* User profile management
+* Custom biography
+* Avatar uploads
+* Persistent user preferences
+* User-specific theme settings
+
+### 🎨 Frontend Experience
+
+* Responsive React interface
+* Material UI component system
+* Dark and light themes
+* Theme preference persistence
+* Public and authenticated application views
+* Vite-powered development environment
+
+### 🖼️ Media Management
+
+* Image uploads through the backend API
+* User avatar support
+* Featured images for blog posts
+* Media validation and storage
+* Uploaded media associated with application data
+
+### 🐳 Infrastructure
+
+* Fully Dockerized development environment
+* Separate frontend and backend containers
+* PostgreSQL database container
+* pgAdmin database management
+* Prisma ORM and database migrations
+* Environment-based configuration
+* Architecture designed for local development and production deployment
+
+---
 
 ## 🧱 Tech Stack
 
-| Layer       | Tech                         |
-|-------------|------------------------------|
-| Frontend    | React + Vite + MUI v10       |
-| Backend     | Node.js + Express + Prisma   |
-| Auth        | JWT (access + refresh), cookies |
-| Database    | PostgreSQL                   |
-| Storage     | Local (uploads to `/media`)  |
-| Deployment  | Fly.io (Docker)              |
+| Layer          | Technology                         |
+| -------------- | ---------------------------------- |
+| Frontend       | React, Vite, Material UI           |
+| Backend        | Node.js, Express                   |
+| Database       | PostgreSQL                         |
+| ORM            | Prisma                             |
+| Authentication | JWT access + refresh tokens        |
+| Rich Text      | TinyMCE                            |
+| Media          | Express-based file uploads         |
+| Containers     | Docker, Docker Compose             |
+| Database Tools | pgAdmin                            |
+| Deployment     | Docker-compatible cloud deployment |
 
 ---
 
-## 🧪 Local Development
+## 🏗️ Architecture
 
-### 1. Clone the project:
+Mini Blog uses a separated client/API architecture:
 
-```bash
-git clone https://github.com/yourusername/mini-blog-cms.git
-cd mini-blog-cms
+```text
+┌─────────────────────────┐
+│      React + Vite       │
+│         Client          │
+└────────────┬────────────┘
+             │
+             │ HTTP / REST
+             ▼
+┌─────────────────────────┐
+│     Node + Express      │
+│          API            │
+└────────────┬────────────┘
+             │
+             │ Prisma ORM
+             ▼
+┌─────────────────────────┐
+│       PostgreSQL        │
+│        Database         │
+└─────────────────────────┘
 ```
 
-### 2. Create `.env` files:
+Docker Compose orchestrates the application services during local development.
 
-#### `server/.env`
+---
+
+## 🔑 Authentication Architecture
+
+The authentication system separates short-lived application authentication from session renewal.
+
+```text
+Browser
+   │
+   ├── Access Token
+   │      └── Used for authenticated API requests
+   │
+   └── Refresh Token
+          └── Used to renew authentication
+```
+
+Protected backend routes validate authentication before allowing access to user-specific resources.
+
+The frontend responds to authentication state by controlling access to protected application pages while maintaining separate public views.
+
+---
+
+## 📁 Project Structure
+
+```text
+full-stack-blog/
+│
+├── client/
+│   ├── src/
+│   ├── public/
+│   ├── .env.example
+│   ├── Dockerfile
+│   └── package.json
+│
+├── server/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
+│   ├── prisma/
+│   │   ├── migrations/
+│   │   └── schema.prisma
+│   ├── .env.example
+│   ├── Dockerfile
+│   └── package.json
+│
+├── docker-compose.yml
+├── .gitignore
+└── README.md
+```
+
+---
+
+## 📸 Screenshots
+
+Application screenshots will be added here to demonstrate the primary user flows and interface.
+
+Planned views include:
+
+* Public blog
+* Authentication
+* Content management
+* Rich-text post editor
+* User profile/settings
+* Dark and light themes
+
+---
+
+## 🚀 Running Locally
+
+### Prerequisites
+
+You will need:
+
+* Git
+* Docker
+* Docker Compose
+
+Because the application is containerized, Node.js and PostgreSQL do not need to be installed directly on the host machine when using the Docker development environment.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/calebjhoffman/full-stack-blog.git
+cd full-stack-blog
+```
+
+### 2. Configure environment variables
+
+Example environment files are included in the repository.
+
+Create your local environment files from the examples.
+
+For the server:
+
+```bash
+cp server/.env.example server/.env
+```
+
+For the client:
+
+```bash
+cp client/.env.example client/.env
+```
+
+Update the values as necessary for your local environment.
+
+### 3. Start the application
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+Docker Compose will start the frontend, backend, PostgreSQL database, and supporting development services.
+
+Typical local services include:
+
+```text
+Frontend:   http://localhost:5173
+Backend:    http://localhost:3000
+API:        http://localhost:3000/api
+pgAdmin:    http://localhost:5050
+```
+
+Ports may vary depending on the current Docker Compose configuration.
+
+---
+
+## ⚙️ Environment Configuration
+
+Sensitive environment files are intentionally excluded from version control.
+
+The repository contains `.env.example` files showing the variables required to run the application without exposing real credentials.
+
+Example server configuration:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@db:5432/mini_blog
+
 JWT_ACCESS_SECRET=your_dev_access_secret
 JWT_REFRESH_SECRET=your_dev_refresh_secret
+
 ACCESS_TOKEN_EXPIRES_IN=12h
 REFRESH_TOKEN_EXPIRES_IN=7d
+
 CLIENT_ORIGIN=http://localhost:5173
 ```
 
-#### `client/.env`
+Example client configuration:
 
 ```env
 VITE_API_BASE_URL=http://localhost:3000/api
 VITE_SERVER_PUBLIC_URL=http://localhost:3000
 ```
 
-### 3. Start everything with Docker:
+Production secrets should be provided through the deployment platform's environment-variable or secrets-management system rather than committed to source control.
+
+---
+
+## 🗄️ Database
+
+The application uses **PostgreSQL** with **Prisma ORM**.
+
+Prisma manages the application schema, relationships, and database migrations.
+
+Database changes are tracked through migration files so the database structure can be reproduced consistently across environments.
+
+Common Prisma commands can be executed from within the server environment when necessary.
+
+For example:
 
 ```bash
-docker compose up --build
+npx prisma migrate dev
 ```
 
-- Frontend: http://localhost:5173  
-- Backend API: http://localhost:3000/api  
-- pgAdmin: http://localhost:5050
-
----
-
-## 🐳 Docker Architecture
-
-```
-/client       → React app (Vite)
-/server       → Express + Prisma API
-/db           → PostgreSQL (via Docker)
-```
-
-All containers are defined in `docker-compose.yml` and share a network. PostgreSQL has persistent volume storage.
-
----
-
-## 🔧 Environment Variables
-
-| Environment | Path                     | Notes                        |
-|-------------|--------------------------|------------------------------|
-| Dev API     | `server/.env`            | Used locally with Docker     |
-| Dev Client  | `client/.env`            | VITE_ prefixed variables     |
-| Prod API    | `fly secrets set`        | Injected via Fly CLI         |
-| Prod Client | `client/.env.production` | Used at build time by Vite   |
-
----
-
-## ☁️ Deployment (Fly.io)
-
-This app uses **split deployment** for frontend and backend.
-
-### ✅ Backend
+and:
 
 ```bash
-cd server
-fly launch # Accept prompts, don't deploy yet
-fly postgres create
-fly postgres attach --app mini-blog-api
-fly secrets set JWT_ACCESS_SECRET=... JWT_REFRESH_SECRET=... ACCESS_TOKEN_EXPIRES_IN=12h REFRESH_TOKEN_EXPIRES_IN=7d CLIENT_ORIGIN=https://yourdomain.com
-fly deploy
+npx prisma studio
 ```
-
-### ✅ Frontend
-
-```bash
-cd client
-npm run build
-fly launch --name mini-blog-client
-fly deploy
-```
-
-> Make sure `VITE_API_BASE_URL` and `VITE_SERVER_PUBLIC_URL` point to your live API URL, e.g. `https://mini-blog-api.fly.dev`
 
 ---
 
-## 🌐 Custom Domain (Optional)
+## 🐳 Docker Development
 
-If you have a domain (e.g., via SiteGround), configure DNS:
+The application is designed around a containerized development workflow.
 
-| Subdomain            | Points To                 |
-|----------------------|---------------------------|
-| `yourdomain.com`     | Fly frontend app          |
-| `api.yourdomain.com` | Fly backend app           |
+Docker Compose manages the application's primary services:
 
-✅ Fly handles HTTPS certs automatically.
+```text
+Client
+   │
+   ├── React
+   └── Vite
+
+Server
+   │
+   ├── Node.js
+   ├── Express
+   └── Prisma
+
+Database
+   │
+   └── PostgreSQL
+
+Database Management
+   │
+   └── pgAdmin
+```
+
+This keeps the development environment reproducible and reduces differences between development machines.
 
 ---
 
-## 🙋 About the Developer
+## ☁️ Deployment
 
-This project was built to demonstrate real full-stack skills — from backend auth to frontend theming to DevOps deploys.
+The frontend and backend are structured so they can be deployed independently while communicating through environment-configured API URLs.
 
-Built by **Caleb Hoffman** — full stack developer focused on modern SaaS, React, and Node.js.
+The Docker-based architecture can be adapted to platforms that support containerized Node.js applications and managed or self-hosted PostgreSQL databases.
 
-[GitHub](https://github.com/calebhoffman) • [Portfolio](https://yourdomain.com)
+Production configuration should provide:
+
+* PostgreSQL connection credentials
+* JWT secrets
+* Allowed frontend origin
+* Production API URL
+* Media/storage configuration
+* Any third-party service credentials
+
+No production secrets are stored in this repository.
+
+---
+
+## 🎯 What This Project Demonstrates
+
+This project was built as a practical implementation of modern full-stack JavaScript development.
+
+It demonstrates experience with:
+
+* Designing REST APIs
+* Building React applications
+* Structuring Node.js/Express backends
+* Relational database design
+* PostgreSQL
+* Prisma ORM
+* Authentication and authorization
+* Access and refresh-token workflows
+* Protected frontend and backend routes
+* User account management
+* Media uploads
+* Rich-text content management
+* Persistent user preferences
+* Responsive UI development
+* Docker and Docker Compose
+* Environment configuration
+* Database migrations
+* Client/server architecture
+* Production-oriented application structure
+
+---
+
+## 👨‍💻 Developer
+
+Built by **Caleb Hoffman**, a full-stack JavaScript developer focused on building practical web applications, business tools, and modern SaaS-style systems.
+
+**Core technologies:** React • Node.js • Express • PostgreSQL • Prisma • Docker
+
+[GitHub — calebjhoffman](https://github.com/calebjhoffman)
 
 ---
 
 ## 🪪 License
 
-MIT — free to use, customize, and ship.
+MIT License
