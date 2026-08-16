@@ -169,8 +169,8 @@ full-stack-blog/
 ### Sign In
 ![Sign In](./screenshots/sign-in.png)
 
-### Public Blog
-![Public Blog](./screenshots/public-blog.png)
+### Post View
+![Public Blog](./screenshots/post-view.png)
 
 ### Private Dashboard
 ![Private Dashboard](./screenshots/dashboard.png)
