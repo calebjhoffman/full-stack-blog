@@ -39,7 +39,6 @@ client/.vite/
 server/prisma/dev.db
 server/prisma/dev.db-journal
 server/prisma/generated/
-server/prisma/migrations/
 
 # Uploads (media storage)
 server/uploads/
