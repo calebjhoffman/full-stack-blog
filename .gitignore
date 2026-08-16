@@ -35,6 +35,14 @@ dist-ssr/
 client/dist/
 client/.vite/
 
+# Environment files - keep real secrets local
+.env
+.env.*
+!.env.example
+
+server/.env
+client/.env
+
 # Prisma
 server/prisma/dev.db
 server/prisma/dev.db-journal
